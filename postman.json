@@ -1,0 +1,208 @@
+{
+    "info": {
+      "name": "ToDo API テスト",
+      "description": "Cloudflare Workers + HonoでのToDo APIのテスト用コレクション",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "すべてのTodoを取得",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/todos",
+            "host": ["{{baseUrl}}"],
+            "path": ["todos"]
+          },
+          "description": "登録されているすべてのTodoを取得します"
+        },
+        "response": []
+      },
+      {
+        "name": "特定のTodoを取得",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/todos/{{todoId}}",
+            "host": ["{{baseUrl}}"],
+            "path": ["todos", "{{todoId}}"]
+          },
+          "description": "指定されたIDのTodoを取得します。TodoIDを環境変数に設定してください。"
+        },
+        "response": []
+      },
+      {
+        "name": "新しいTodoを作成",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"title\": \"買い物に行く\"\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/todos",
+            "host": ["{{baseUrl}}"],
+            "path": ["todos"]
+          },
+          "description": "新しいTodoを作成します。レスポンスのIDを環境変数に保存すると、他のリクエストで使用できます。"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const response = pm.response.json();",
+                "pm.environment.set('todoId', response.id);",
+                "console.log('Created Todo ID:', response.id);",
+                "pm.test('Status code is 201', function() {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "pm.test('Todo has been created', function() {",
+                "    pm.expect(response.id).to.exist;",
+                "    pm.expect(response.title).to.equal('買い物に行く');",
+                "    pm.expect(response.completed).to.equal(false);",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Todoを更新",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"title\": \"買い物リストを作成する\",\n    \"completed\": true\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/todos/{{todoId}}",
+            "host": ["{{baseUrl}}"],
+            "path": ["todos", "{{todoId}}"]
+          },
+          "description": "指定されたIDのTodoを更新します。titleとcompletedを変更できます。"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const response = pm.response.json();",
+                "pm.test('Status code is 200', function() {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "pm.test('Todo has been updated', function() {",
+                "    pm.expect(response.id).to.equal(pm.environment.get('todoId'));",
+                "    pm.expect(response.title).to.equal('買い物リストを作成する');",
+                "    pm.expect(response.completed).to.equal(true);",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Todoを削除",
+        "request": {
+          "method": "DELETE",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/todos/{{todoId}}",
+            "host": ["{{baseUrl}}"],
+            "path": ["todos", "{{todoId}}"]
+          },
+          "description": "指定されたIDのTodoを削除します。"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status code is 200', function() {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "pm.test('Deletion message is returned', function() {",
+                "    const response = pm.response.json();",
+                "    pm.expect(response.message).to.equal('Todo deleted successfully');",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "削除後のTodoの確認（404を期待）",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{baseUrl}}/todos/{{todoId}}",
+            "host": ["{{baseUrl}}"],
+            "path": ["todos", "{{todoId}}"]
+          },
+          "description": "削除したTodoにアクセスし、404エラーが返ることを確認します。"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status code is 404', function() {",
+                "    pm.response.to.have.status(404);",
+                "});",
+                "pm.test('Error message is correct', function() {",
+                "    const response = pm.response.json();",
+                "    pm.expect(response.message).to.equal('Todo not found');",
+                "});"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:8787",
+        "type": "string"
+      }
+    ]
+  }

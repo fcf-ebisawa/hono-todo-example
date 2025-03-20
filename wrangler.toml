@@ -1,0 +1,8 @@
+name = "todo-api"
+main = "src/index.ts"
+compatibility_date = "2025-03-10"
+
+[[kv_namespaces]]
+binding = "TODO_STORE"
+id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+preview_id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
